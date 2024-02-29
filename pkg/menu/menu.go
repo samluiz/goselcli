@@ -1,4 +1,4 @@
-package menu
+package goselcli
 
 import (
 	"fmt"
