@@ -27,7 +27,7 @@ func NewMenu(prompt string) *Menu {
 	}
 }
 
-func (m *Menu) addOption(name string, id string) *Menu {
+func (m *Menu) AddOption(name string, id string) *Menu {
 	option := &Option{
 		Text: name,
 		ID:   id,
