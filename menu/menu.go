@@ -37,7 +37,7 @@ func (m *Menu) AddOption(name string, id string) *Menu {
 	return m
 }
 
-func (m *Menu) RenderMenuOptions(rerender bool) {
+func (m *Menu) renderMenuOptions(rerender bool) {
 	if rerender {
 		for i := 0; i < len(m.Options); i++ {
 			fmt.Printf("\033[2K")
@@ -72,17 +72,17 @@ func (m *Menu) Display() string {
 
 	fmt.Printf("\n%s\n", goterm.Color(goterm.Bold(m.Prompt)+":", goterm.CYAN))
 
-	m.RenderMenuOptions(false)
+	m.renderMenuOptions(false)
 
 	for {
 		keyboard.Listen(func(key keys.Key) (stop bool, err error) {
 			switch key.Code {
 			case keys.Up:
 				m.CursorPos = (m.CursorPos + len(m.Options) - 1) % len(m.Options)
-				m.RenderMenuOptions(true)
+				m.renderMenuOptions(true)
 			case keys.Down:
 				m.CursorPos = (m.CursorPos + 1) % len(m.Options)
-				m.RenderMenuOptions(true)
+				m.renderMenuOptions(true)
 			case keys.Enter:
 				option = m.Options[m.CursorPos].ID
 				fmt.Println("\r")
