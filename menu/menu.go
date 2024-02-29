@@ -2,6 +2,7 @@ package menu
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"atomicgo.dev/keyboard"
@@ -38,7 +39,7 @@ func (m *Menu) AddOption(name string, id string) *Menu {
 }
 
 func (m *Menu) renderMenuOptions(rerender bool) {
-	if rerender {
+	if rerender && len(m.Options) > 1 {
 		for i := 0; i < len(m.Options); i++ {
 			fmt.Printf("\033[2K")
 		}
@@ -68,6 +69,10 @@ func (m *Menu) Display() string {
 		fmt.Printf("\033[?25h")
 	}()
 
+	if len(m.Options) == 0 {
+		log.Fatal("No options added to menu")
+	}
+
 	var option string
 
 	fmt.Printf("\n%s\n", goterm.Color(goterm.Bold(m.Prompt)+":", goterm.CYAN))
@@ -78,11 +83,19 @@ func (m *Menu) Display() string {
 		keyboard.Listen(func(key keys.Key) (stop bool, err error) {
 			switch key.Code {
 			case keys.Up:
-				m.CursorPos = (m.CursorPos + len(m.Options) - 1) % len(m.Options)
-				m.renderMenuOptions(true)
+				m.moveCursorUp()
 			case keys.Down:
-				m.CursorPos = (m.CursorPos + 1) % len(m.Options)
-				m.renderMenuOptions(true)
+				m.moveCursorDown()
+			case keys.RuneKey:
+				if key.String() == "k" {
+					m.moveCursorUp()
+				} else if key.String() == "j" {
+					m.moveCursorDown()
+				} else if key.String() == "q" {
+					os.Exit(0)
+				} else {
+					return false, nil
+				}
 			case keys.Enter:
 				option = m.Options[m.CursorPos].ID
 				fmt.Println("\r")
@@ -94,4 +107,14 @@ func (m *Menu) Display() string {
 		})
 		return option
 	}
+}
+
+func (m *Menu) moveCursorUp() {
+	m.CursorPos = (m.CursorPos + len(m.Options) - 1) % len(m.Options)
+	m.renderMenuOptions(true)
+}
+
+func (m *Menu) moveCursorDown() {
+	m.CursorPos = (m.CursorPos + 1) % len(m.Options)
+	m.renderMenuOptions(true)
 }
